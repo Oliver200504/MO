@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Ranking de Jugadores";
+}
+
+<h2>🏆 Ranking Global</h2>
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Jugador</th>
+            <th>Puntaje Máximo</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in ViewBag.Ranking)
+        {
+            <tr>
+                <td>@r.Usuario</td>
+                <td>@r.Puntaje</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Home/MenuPrincipal">⬅ Volver al Menú</a>

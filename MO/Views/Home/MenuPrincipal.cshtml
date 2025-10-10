@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Menú Principal";
+}
+
+<h2>Bienvenido, @ViewBag.Username 👋</h2>
+<p>Selecciona una opción:</p>
+
+<ul>
+    <li><a href="/Juego/Iniciar">🎮 Iniciar Partida</a></li>
+    <li><a href="/Ranking/Index">🏆 Ranking</a></li>
+    <li><a href="/Usuario/Perfil">👤 Mi Perfil</a></li>
+    <li><a href="@Url.Action("Logout", "Usuario")">🚪 Cerrar Sesión</a></li>
+</ul>

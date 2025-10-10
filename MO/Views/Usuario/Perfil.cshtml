@@ -1,0 +1,10 @@
+﻿@model MO.Models.Usuario
+
+<h2>Mi Perfil</h2>
+
+<p><strong>Nombre:</strong> @Model.Nombre</p>
+<p><strong>Usuario:</strong> @Model.Username</p>
+<p><strong>Correo:</strong> @Model.Correo</p>
+
+<a class="btn btn-primary" href="/Usuario/Editar?id=@Model.Id_Usuario">Editar Perfil</a>
+<a class="btn btn-secondary" href="/Home/MenuPrincipal">Volver al Menú</a>

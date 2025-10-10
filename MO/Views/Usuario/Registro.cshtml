@@ -1,0 +1,39 @@
+﻿@model MO.Models.Usuario
+
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<h2>Crear cuenta</h2>
+<form asp-action="Registro" method="post">
+    <div>
+        <label>Nombre:</label>
+        <input asp-for="Nombre" />
+        <span asp-validation-for="Nombre"></span>
+    </div>
+
+    <div>
+        <label>Usuario:</label>
+        <input asp-for="Username" />
+        <span asp-validation-for="Username"></span>
+    </div>
+
+    <div>
+        <label>Correo:</label>
+        <input asp-for="Correo" />
+        <span asp-validation-for="Correo"></span>
+    </div>
+
+    <div>
+        <label>Contraseña:</label>
+        <input asp-for="Contrasena" type="password" />
+        <span asp-validation-for="Contrasena"></span>
+    </div>
+
+    <button type="submit">Registrarse</button>
+</form>
+
+@if (ViewBag.Mensaje != null)
+{
+    <p style="color:green;">@ViewBag.Mensaje</p>
+}

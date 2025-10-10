@@ -1,0 +1,29 @@
+﻿@model MO.Models.Usuario
+
+<h2>Editar Perfil</h2>
+
+<form method="post" asp-action="Editar">
+    <div>
+        <label>Nombre:</label>
+        <input asp-for="Nombre" />
+    </div>
+
+    <div>
+        <label>Usuario:</label>
+        <input asp-for="Username" />
+    </div>
+
+    <div>
+        <label>Correo:</label>
+        <input asp-for="Correo" />
+    </div>
+
+    <div>
+        <label>Contraseña:</label>
+        <input asp-for="Contrasena" type="password" />
+    </div>
+
+    <button type="submit">Guardar cambios</button>
+</form>
+
+<a href="/Usuario/Perfil">⬅ Volver al perfil</a>
