@@ -1,0 +1,207 @@
+﻿@model List<MO.Models.Categoria>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Ruleta de Categorías</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: radial-gradient(circle at center, #021a3d, #000814);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-weight: 600;
+        }
+
+        .ruleta-container {
+            position: relative;
+            width: 420px;
+            height: 420px;
+            margin: 50px auto;
+        }
+
+        /* Flecha superior precisa */
+        .flecha {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #ffcc00;
+            z-index: 30;
+            filter: drop-shadow(0 0 5px #ff0);
+        }
+
+        .ruleta {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 10px solid #fff;
+            overflow: hidden;
+            position: relative;
+            transition: transform 5s cubic-bezier(.25,.85,.32,1);
+            box-shadow: 0 0 25px #0033ff;
+        }
+
+        .sector {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0% 0%;
+            text-align: right;
+        }
+
+        .texto {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform-origin: 0% 0%;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            width: 140px;
+            text-align: center;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        .boton-girar {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 130px;
+            background: #ffc107;
+            border-radius: 50%;
+            border: 6px solid #fff;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            z-index: 25;
+            transition: 0.2s;
+        }
+
+            .boton-girar:hover {
+                transform: translate(-50%, -50%) scale(1.05);
+                background: #ffcd39;
+            }
+
+        #resultado {
+            font-size: 22px;
+            margin-top: 30px;
+        }
+
+        /* Colores de sectores */
+        .color1 {
+            background-color: #007bff;
+        }
+
+        .color2 {
+            background-color: #6610f2;
+        }
+
+        .color3 {
+            background-color: #28a745;
+        }
+
+        .color4 {
+            background-color: #dc3545;
+        }
+
+        .color5 {
+            background-color: #fd7e14;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🎡 Gira la ruleta para elegir una categoría</h2>
+
+    <div class="ruleta-container">
+        <div class="flecha"></div>
+
+        <div class="ruleta" id="ruleta">
+            @{
+                int count = Model?.Count ?? 0;
+                if (count == 0)
+                {
+                    <div style="color:#fff; padding:40px;">No hay categorías definidas.</div>
+                }
+                else
+                {
+                    double angulo = 360.0 / count;
+                    string[] colores = { "color1", "color2", "color3", "color4", "color5" };
+                    for (int i = 0; i < count; i++)
+                    {
+                        var rotacion = i * angulo;
+                        var skew = 90 - angulo;
+                        var textoRotate = angulo / 2;
+                        var colorClass = colores[i % colores.Length];
+                        <div class="sector @colorClass" style="@($"transform: rotate({rotacion}deg) skewY(-{skew}deg);")">
+                            <div class="texto" style="@($"transform: rotate({textoRotate}deg) translate(60px, -10px); font-size:{(angulo < 60 ? 12 : 14)}px;")">
+                                @Model[i].nombre_categoria
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+        <button class="boton-girar" id="btnGirar">GIRAR</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <script>
+        const ruleta = document.getElementById("ruleta");
+        const btnGirar = document.getElementById("btnGirar");
+        const resultado = document.getElementById("resultado");
+
+        const categorias = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<MO.Models.Categoria>()));
+
+        btnGirar.addEventListener("click", () => {
+            if (!categorias || categorias.length === 0) return;
+            btnGirar.disabled = true;
+            resultado.innerText = "";
+
+            const vueltas = 3 + Math.floor(Math.random() * 5);
+            const giros = 360 * vueltas;
+
+            // índice aleatorio
+            const index = Math.floor(Math.random() * categorias.length);
+            const anguloPorCategoria = 360 / categorias.length;
+
+            // Ajuste preciso: la flecha apunta al sector superior (0°)
+            const rotacionFinal = giros + (360 - (index * anguloPorCategoria + anguloPorCategoria / 2));
+
+            ruleta.style.transform = `rotate(${rotacionFinal}deg)`;
+
+            setTimeout(() => {
+                const categoriaSeleccionada = categorias[index];
+                resultado.innerHTML = `Categoría seleccionada: <b>${categoriaSeleccionada.nombre_categoria}</b>`;
+
+                setTimeout(() => {
+                    window.location.href = `/Juego/IniciarRonda?idCategoria=${categoriaSeleccionada.id_categoria}`;
+                }, 1500);
+            }, 5100);
+        });
+    </script>
+</body>
+</html>

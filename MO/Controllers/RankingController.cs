@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MO.Data;
+using MO.Models;
 using MySql.Data.MySqlClient;
-using MO.Data;
 
 namespace MO.Controllers
 {
@@ -16,21 +16,31 @@ namespace MO.Controllers
 
         public IActionResult Index()
         {
-            var lista = new List<(string Usuario, int Puntaje)>();
+            var lista = new List<JuegoRanking>();
 
             using var conn = _conexion.GetConnection();
             conn.Open();
-            string query = "SELECT username, MAX(puntaje_total) AS puntaje FROM juego JOIN usuario USING(id_usuario) GROUP BY username ORDER BY puntaje DESC;";
+
+            string query = @"SELECT u.username, MAX(j.puntaje_total) AS puntaje, MAX(j.fecha) AS fecha
+                             FROM juego j
+                             JOIN usuario u USING(id_usuario)
+                             GROUP BY u.username
+                             ORDER BY puntaje DESC;";
+
             using var cmd = new MySqlCommand(query, conn);
             using var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
-                lista.Add((reader.GetString("username"), reader.GetInt32("puntaje")));
+                lista.Add(new JuegoRanking
+                {
+                    Username = reader.GetString("username"),
+                    Puntaje = reader.GetInt32("puntaje"),
+                    Fecha = reader.GetDateTime("fecha")
+                });
             }
 
-            ViewBag.Ranking = lista;
-            return View();
+            return View(lista); // ✅ Enviamos el modelo correctamente
         }
     }
 }
