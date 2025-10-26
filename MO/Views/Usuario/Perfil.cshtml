@@ -1,27 +1,235 @@
 ﻿@model MO.Models.Usuario
+<body class="perfil">
+    <div class="perfil-container">
+        <div class="perfil-grid">
+            <!-- Columna izquierda: Título y datos del usuario -->
+            <div class="left-column">
+                <h2>Mi Perfil</h2>
+                <div class="info-box">
+                    <span class="icon">👤</span>
+                    <div class="info-text">
+                        <p class="label">Nombre</p>
+                        <p class="value">@Model.Nombre</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <span class="icon">🆔</span>
+                    <div class="info-text">
+                        <p class="label">Usuario</p>
+                        <p class="value">@Model.Username</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <span class="icon">📧</span>
+                    <div class="info-text">
+                        <p class="label">Correo</p>
+                        <p class="value">@Model.Correo</p>
+                    </div>
+                </div>
 
-<h2>Mi Perfil</h2>
+                <div class="botones-izquierda">
+                    <a class="btn-perfil btn-primary" href="/Usuario/Editar?id=@Model.Id_Usuario">Editar Perfil</a>
+                    <a class="btn-perfil btn-secondary" href="/Home/MenuPrincipal">Volver al Menú</a>
+                </div>
+            </div>
 
-<p><strong>Nombre:</strong> @Model.Nombre</p>
-<p><strong>Usuario:</strong> @Model.Username</p>
-<p><strong>Correo:</strong> @Model.Correo</p>
+            <!-- Columna derecha: Título y última partida -->
+            <div class="right-column">
+                @if (ViewBag.UltimaPartida != null)
+                {
+                    var partida = ViewBag.UltimaPartida;
+                    <h2>Última Partida</h2>
+                    <div class="game-box">
+                        <div class="info-box">
+                            <span class="icon">📅</span>
+                            <div class="info-text">
+                                <p class="label">Fecha</p>
+                                <p class="value">@partida.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <span class="icon">🏆</span>
+                            <div class="info-text">
+                                <p class="label">Puntaje Total</p>
+                                <p class="value">@partida.PuntajeTotal</p>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <span class="icon">✅</span>
+                            <div class="info-text">
+                                <p class="label">Correctas</p>
+                                <p class="value">@partida.Correctas</p>
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <span class="icon">❌</span>
+                            <div class="info-text">
+                                <p class="label">Incorrectas</p>
+                                <p class="value">@partida.Incorrectas</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <h2>Última Partida</h2>
+                    <p>No hay partidas registradas.</p>
+                }
+            </div>
+        </div>
+    </div>
+</body>
 
-@if (ViewBag.UltimaPartida != null)
-{
-    var partida = ViewBag.UltimaPartida;
+<style>
+    body.perfil {
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding-top: 50px;
+        color: #fff;
+    }
 
-    <h3>Última Partida</h3>
-    <p><strong>Fecha:</strong> @partida.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
-    <p><strong>Puntaje Total:</strong> @partida.PuntajeTotal</p>
-    <p><strong>Respuestas Correctas:</strong> @partida.Correctas</p>
-    <p><strong>Respuestas Incorrectas:</strong> @partida.Incorrectas</p>
-}
-else
-{
-    <p>No hay partidas registradas.</p>
-}
+    .perfil-container {
+        background: linear-gradient(135deg, #1a1a2e, #101540);
+        border-radius: 20px;
+        padding: 30px 25px;
+        max-width: 950px;
+        width: 95%;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-<a class="btn btn-primary" href="/Usuario/Editar?id=@Model.Id_Usuario">Editar Perfil</a>
-<a class="btn btn-secondary" href="/Home/MenuPrincipal">Volver al Menú</a>
+        .perfil-container:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
 
+    h2 {
+        font-weight: 900;
+        margin-bottom: 20px;
+        color: #fff;
+    }
 
+    /* Grid para dos columnas */
+    .perfil-grid {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    /* Columnas */
+    .left-column, .right-column {
+        flex: 1 1 45%;
+        text-align: left;
+    }
+
+    /* Recuadros de info */
+    .info-box {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 10px 15px;
+        margin: 8px 0;
+        gap: 12px;
+        transition: background 0.3s ease;
+    }
+
+        .info-box:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+    .icon {
+        font-size: 1.5rem;
+    }
+
+    .info-text {
+        text-align: left;
+    }
+
+    .label {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #bbb;
+        margin: 0;
+    }
+
+    .value {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .game-box {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .botones-izquierda {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    /* Botones */
+    .btn-perfil {
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 0.7rem 1.8rem;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-block;
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #2575fc, #6a11cb);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+
+    .btn-secondary {
+        background: linear-gradient(45deg, #ff6a95, #8a2be2);
+    }
+
+        .btn-secondary:hover {
+            background: linear-gradient(45deg, #8a2be2, #ff6a95);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .perfil-grid {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .left-column, .right-column {
+            flex: 1 1 100%;
+        }
+
+        .botones-izquierda {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-perfil {
+            width: 100%;
+        }
+    }
+</style>

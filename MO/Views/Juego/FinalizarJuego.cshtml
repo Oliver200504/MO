@@ -1,10 +1,22 @@
-﻿@{
-    
-}
-<head>
+﻿<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ronda Finalizada - MO Trivia</title>
+</head>
+<body class="finalizado">
+    <div class="container">
+        <h2>¡Ronda finalizada!</h2>
+
+        <div class="resultado">Respuestas correctas ✅: <strong>@ViewBag.Correctas</strong></div>
+        <div class="resultado">Respuestas incorrectas ❌: <strong>@ViewBag.Incorrectas</strong></div>
+        <div class="resultado">Puntaje total: <strong>@ViewBag.Puntaje</strong></div>
+
+        <a href="/Juego/Ruleta" class="btn-jugar">🎮 Volver a jugar</a>
+        <a href="/Home/MenuPrincipal" class="btn-jugar">🏠 Menú principal</a>
+    </div>
+</body>
+</html>
+
     <style>
         body.finalizado {
             background: linear-gradient(135deg, #6a11cb, #2575fc);
@@ -14,19 +26,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
-        .container {
-            background: rgba(0,0,0,0.6);
-            padding: 2rem 3rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 0 15px #000;
+        
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #fff;
         }
 
         .resultado {
-            font-size: 1.3rem;
-            margin: 0.8rem 0;
+            font-size: 1.2rem;
+            margin: 12px 0;
+            font-weight: bold;
         }
 
         .btn-jugar {
@@ -35,31 +50,42 @@
             padding: 0.8rem 2rem;
             border-radius: 12px;
             margin: 0.5rem;
-            background: linear-gradient(90deg, #ff6a00, #ee0979);
+        background: linear-gradient(45deg, #4fc3f8, #2575fc);
             color: #fff;
             border: none;
             text-decoration: none;
             display: inline-block;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
             .btn-jugar:hover {
-                background: linear-gradient(90deg, #ee0979, #ff6a00);
+                background: linear-gradient(90deg, #ff6a95, #6a11cb);
                 box-shadow: 0 0 15px #ffd700;
+                transform: translateY(-3px) scale(1.03);
                 color: #fff;
             }
+
+        /* Responsive */
+        @@media (max-width: 480px) {
+            .container
+
+        {
+            padding: 1.5rem 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+        }
+
+        .resultado {
+            font-size: 1rem;
+        }
+
+        .btn-jugar {
+            width: 100%;
+            padding: 0.7rem 0;
+        }
+
+        }
     </style>
-</head>
-<body class="finalizado">
-    <div class="container">
-        <h2>¡Ronda finalizada!</h2>
-
-        <div class="resultado">Respuestas correctas: <strong>@ViewBag.Correctas</strong></div>
-        <div class="resultado">Respuestas incorrectas: <strong>@ViewBag.Incorrectas</strong></div>
-        <div class="resultado">Puntaje total: <strong>@ViewBag.Puntaje</strong></div>
-
-        <a href="/Juego/Ruleta" class="btn-jugar">🎮 Volver a jugar</a>
-        <a href="/Home/MenuPrincipal" class="btn-jugar">🏠 Menú principal</a>
-    </div>
-</body>
-</html>

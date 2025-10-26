@@ -2,20 +2,142 @@
     ViewData["Title"] = "Iniciar Sesión";
 }
 
-<h2>Iniciar Sesión</h2>
-<form method="post" asp-action="Login">
-    <div>
-        <label>Usuario:</label>
-        <input type="text" name="username" required />
-    </div>
-    <div>
-        <label>Contraseña:</label>
-        <input type="password" name="contrasena" required />
-    </div>
-    <button type="submit">Entrar</button>
-</form>
+<div class="login-container">
+    <h2 class="login-title">Iniciar Sesión</h2>
+    <form method="post" asp-action="Login">
+        <div class="form-group">
+            <input type="text" name="username" placeholder=" " required />
+            <label>Usuario:</label>
+        </div>
+        <div class="form-group">
+            <input type="password" name="contrasena" placeholder=" " required />
+            <label>Contraseña:</label>
+        </div>
+        <button type="submit" class="btn-login">Entrar</button>
+    </form>
+    @if (ViewBag.Error != null)
+    {
+        <p class="error-msg">@ViewBag.Error</p>
+    }
+</div>
 
-@if (ViewBag.Error != null)
-{
-    <p style="color:red;">@ViewBag.Error</p>
-}
+<style>
+    body.trivia {
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+    }
+
+   
+    .login-container {
+        max-width: 360px;
+        margin: 20px auto;
+        padding: 35px 25px;
+        background: linear-gradient(135deg, #1a1a2e, #101540);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    
+    .login-title {
+        background: linear-gradient(45deg, #8a2be2, #2575fc);
+        color: #fff;
+        padding: 6px 18px;
+        border-radius: 12px;
+        font-size: 2rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    /* Formulario */
+    .login-container form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Campos y labels alineados */
+    .form-group {
+        position: relative;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+        .form-group input {
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: none;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+            .form-group input:focus {
+                background: #2a2a2a;
+            }
+
+        /* Labels animados al escribir o hover */
+        .form-group label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:hover + label,
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            color: #2575fc; /* morado-azul al pasar o escribir */
+        }
+
+    /* Botón degradado */
+    .btn-login {
+        padding: 12px;
+        border-radius: 15px;
+        font-weight: 900;
+        font-size: 1.1rem;
+        border: none;
+        color: #fff;
+        background: linear-gradient(45deg, #2575fc, #8a2be2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(45deg, #4fc3f7, #9b30ff);
+        }
+
+    /* Mensaje de error */
+    .error-msg {
+        color: #ff5555;
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 700;
+    }
+
+    /* Responsive */
+    @@media (max-width: 480px) {
+        .login-container
+
+    {
+        margin: 40px 20px;
+        padding: 30px 20px;
+    }
+
+    .login-title {
+        font-size: 1.8rem;
+        padding: 5px 15px;
+    }
+
+    }
+</style>

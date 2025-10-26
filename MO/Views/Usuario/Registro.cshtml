@@ -4,36 +4,171 @@
     ViewData["Title"] = "Registro";
 }
 
-<h2>Crear cuenta</h2>
-<form asp-action="Registro" method="post">
-    <div>
-        <label>Nombre:</label>
-        <input asp-for="Nombre" />
-        <span asp-validation-for="Nombre"></span>
-    </div>
+<div class="register-container">
+    <h2 class="register-title">Crear cuenta</h2>
+    <form asp-action="Registro" method="post">
+        <div class="form-group">
+            <input asp-for="Nombre" placeholder=" " />
+            <label>Nombre:</label>
+            <span class="validation-msg" asp-validation-for="Nombre"></span>
+        </div>
 
-    <div>
-        <label>Usuario:</label>
-        <input asp-for="Username" />
-        <span asp-validation-for="Username"></span>
-    </div>
+        <div class="form-group">
+            <input asp-for="Username" placeholder=" " />
+            <label>Usuario:</label>
+            <span class="validation-msg" asp-validation-for="Username"></span>
+        </div>
 
-    <div>
-        <label>Correo:</label>
-        <input asp-for="Correo" />
-        <span asp-validation-for="Correo"></span>
-    </div>
+        <div class="form-group">
+            <input asp-for="Correo" placeholder=" " />
+            <label>Correo:</label>
+            <span class="validation-msg" asp-validation-for="Correo"></span>
+        </div>
 
-    <div>
-        <label>Contraseña:</label>
-        <input asp-for="Contrasena" type="password" />
-        <span asp-validation-for="Contrasena"></span>
-    </div>
+        <div class="form-group">
+            <input asp-for="Contrasena" type="password" placeholder=" " />
+            <label>Contraseña:</label>
+            <span class="validation-msg" asp-validation-for="Contrasena"></span>
+        </div>
 
-    <button type="submit">Registrarse</button>
-</form>
+        <button type="submit" class="btn-register">Registrarse</button>
+    </form>
 
-@if (ViewBag.Mensaje != null)
-{
-    <p style="color:green;">@ViewBag.Mensaje</p>
-}
+    @if (ViewBag.Mensaje != null)
+    {
+        <p class="success-msg">@ViewBag.Mensaje</p>
+    }
+</div>
+
+<style>
+    body.trivia {
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 700;
+    }
+
+    /* Contenedor negro con movimiento al pasar el mouse */
+    .register-container {
+        max-width: 360px;
+        margin: 20px auto;
+        padding: 35px 25px;
+        background: linear-gradient(135deg, #1a1a2e, #101540);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
+
+        .register-container:hover {
+            transform: translateY(-5px);
+        }
+
+    /* Título con mini recuadro degradado */
+    .register-title {
+        background: linear-gradient(45deg, #8a2be2, #2575fc);
+        color: #fff;
+        padding: 6px 18px;
+        border-radius: 12px;
+        font-size: 2rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    /* Formulario */
+    .register-container form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    /* Campos y labels alineados */
+    .form-group {
+        position: relative;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+        /* Inputs blancos consistentes */
+        .form-group input {
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: none;
+            background: #fff; /* ahora todos blancos */
+            color: #000; /* texto negro dentro del input */
+            font-size: 1rem;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+            .form-group input:focus {
+                background: #f0f0f0; /* ligeramente más claro al enfocar */
+            }
+
+        /* Labels azul claro consistente */
+        .form-group label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #66ccff; /* azul claro uniforme */
+            margin-bottom: 6px;
+            transition: all 0.3s ease;
+        }
+
+        /* Efecto al hover o al escribir */
+        .form-group input:hover + label,
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label {
+            color: #00ccff; /* azul más intenso al pasar/focus */
+        }
+
+    /* Botón degradado */
+    .btn-register {
+        padding: 12px;
+        border-radius: 15px;
+        font-weight: 900;
+        font-size: 1.1rem;
+        border: none;
+        color: #fff;
+        background: linear-gradient(45deg, #2575fc, #8a2be2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(45deg, #4fc3f7, #9b30ff);
+        }
+
+    /* Mensajes de validación */
+    .validation-msg {
+        color: #ff5555;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .success-msg {
+        color: #00ffcc;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 480px) {
+        .register-container
+
+    {
+        margin: 40px 20px;
+        padding: 30px 20px;
+    }
+
+    .register-title {
+        font-size: 1.8rem;
+        padding: 5px 15px;
+    }
+
+    }
+</style>

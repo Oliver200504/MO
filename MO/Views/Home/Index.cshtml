@@ -2,9 +2,163 @@
     ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center mt-5">
-    <h1>Bienvenido a MO²</h1>
-    <p>Tu sistema de trivia universitaria</p>
-    <a class="btn btn-primary" href="/Usuario/Login">Iniciar sesión</a>
-    <a class="btn btn-secondary" href="/Usuario/Registro">Registrarse</a>
+<div class="main-content">
+    <div class="welcome-box">
+        <div class="icon-container">
+            <img src="~/img/icono.png" />
+        </div>
+        <div class="text-container">
+            <h2>Bienvenido a MO²</h2>
+            <p>Tu sistema de trivia universitaria</p>
+            <div class="btn-group">
+                <a class="btn-primary" href="/Usuario/Login">Iniciar sesión</a>
+                <a class="btn-secondary" href="/Usuario/Registro">Registrarse</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Fondo y tipografía */
+    body.trivia {
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
+        color: #f0f0f0;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    /* Título */
+    .main-content h2 {
+        text-align: center;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        font-size: 2.8rem;
+        margin-bottom: 20px;
+    }
+
+    /* Caja centrada con fondo degradado */
+    .welcome-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a2e, #101540);
+        border-radius: 15px;
+        padding: 40px 30px;
+        max-width: 850px;
+        margin: 0 auto 40px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        transition: transform 0.3s ease;
+    }
+
+        .welcome-box:hover {
+            transform: scale(1.02);
+        }
+
+    /* Icono en su propio recuadro centrado */
+    .icon-container {
+        background: #2a2a40; /* recuadro del icono */
+        padding: 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .icon-container img {
+            width: 200px; /* más grande */
+            height: 180px;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .icon-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+    /* Texto */
+    .text-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center; /* centra el texto dentro de la caja */
+    }
+
+        .text-container p {
+            font-size: 1.2rem;
+            color: #f0f0f0;
+            text-align: center;
+        }
+
+    /* Botones */
+    .btn-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+  
+
+    /* Botones */
+    .btn-primary, .btn-secondary {
+        display: inline-block;
+        padding: 15px 25px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        text-decoration: none;
+        color: #ffffff;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    }
+
+    /* Botón Iniciar sesión: verde → azul */
+    .btn-primary {
+        background: linear-gradient(45deg, #00ffcc, #2575fc);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #4fc3f7, #9b30ff);
+          
+        }
+
+    /* Botón Registrarse: azul → morado */
+    .btn-secondary {
+        background: linear-gradient(45deg, #2575fc, #8a2be2);
+    }
+
+        .btn-secondary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #00ff99, #00ccff);
+            
+        }
+
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .welcome-box
+
+    {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .icon-container {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .text-container {
+        align-items: center;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    }
+</style>
