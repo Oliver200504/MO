@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using MO.Data;
 using MO.Models;
 using MySql.Data.MySqlClient;
-using Microsoft.AspNetCore.Http;
+using System.Dynamic;
 
 namespace ProyectoMO2.Controllers
 {
@@ -53,24 +54,64 @@ namespace ProyectoMO2.Controllers
                 return RedirectToAction("Login");
 
             Usuario usuario = new Usuario();
-            using var conn = _conexion.GetConnection();
-            conn.Open();
-            string query = "SELECT * FROM usuario WHERE id_usuario=@id;";
-            using var cmd = new MySqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@id", idUsuario);
-
-            using var reader = cmd.ExecuteReader();
-            if (reader.Read())
+            using (var conn = _conexion.GetConnection())
             {
-                usuario.Id_Usuario = reader.GetInt32("id_usuario");
-                usuario.Nombre = reader.GetString("nombre");
-                usuario.Username = reader.GetString("username");
-                usuario.Correo = reader.GetString("correo");
-                usuario.Contrasena = reader.GetString("contrasena");
+                conn.Open();
+
+                // Traer datos del usuario
+                string queryUsuario = "SELECT * FROM usuario WHERE id_usuario=@id;";
+                using (var cmd = new MySqlCommand(queryUsuario, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idUsuario);
+                    using var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        usuario.Id_Usuario = reader.GetInt32("id_usuario");
+                        usuario.Nombre = reader.GetString("nombre");
+                        usuario.Username = reader.GetString("username");
+                        usuario.Correo = reader.GetString("correo");
+                        usuario.Contrasena = reader.GetString("contrasena");
+                    }
+                    reader.Close();
+                }
+
+                // Traer la última partida con correctas e incorrectas
+                string queryUltima = @"
+            SELECT 
+                j.id_juego, 
+                j.fecha, 
+                j.puntaje_total,
+                COALESCE(SUM(CASE WHEN d.es_correcta = 1 THEN 1 ELSE 0 END), 0) AS correctas,
+                COALESCE(SUM(CASE WHEN d.es_correcta = 0 THEN 1 ELSE 0 END), 0) AS incorrectas
+            FROM juego j
+            LEFT JOIN detalleJuego d ON d.id_juego = j.id_juego
+            WHERE j.id_usuario = @id
+            GROUP BY j.id_juego, j.fecha, j.puntaje_total
+            ORDER BY j.fecha DESC
+            LIMIT 1;";
+
+                using (var cmd = new MySqlCommand(queryUltima, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idUsuario);
+                    using var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        dynamic ultimaPartida = new ExpandoObject();
+                        ultimaPartida.IdJuego = reader.GetInt32("id_juego");
+                        ultimaPartida.Fecha = reader.GetDateTime("fecha");
+                        ultimaPartida.PuntajeTotal = reader.GetInt32("puntaje_total");
+                        ultimaPartida.Correctas = reader.GetInt32("correctas");
+                        ultimaPartida.Incorrectas = reader.GetInt32("incorrectas");
+
+                        ViewBag.UltimaPartida = ultimaPartida;
+                    }
+                    reader.Close();
+                }
             }
 
             return View(usuario);
         }
+
 
         // GET: Editar Perfil (muestra formulario con datos actuales)
         [HttpGet]

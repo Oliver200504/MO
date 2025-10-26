@@ -1,267 +1,303 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+
+using Microsoft.AspNetCore.Mvc;
+using MO.Data;
 using MySql.Data.MySqlClient;
 using MO.Models;
-using System.Data;
+using System;
+using System.Collections.Generic;
 
 namespace MO.Controllers
 {
     public class JuegoController : Controller
     {
-        private readonly string connectionString = "server=localhost;database=mo;uid=root;pwd=root;";
+        private readonly ConexionBD _conexion;
 
-        // Verifica que haya sesión iniciada
+        public JuegoController(ConexionBD conexion)
+        {
+            _conexion = conexion;
+        }
+
         public IActionResult Iniciar()
         {
-            var username = HttpContext.Session.GetString("Username");
-            if (string.IsNullOrEmpty(username))
-                return RedirectToAction("Login", "Usuario");
+            int idUsuario = HttpContext.Session.GetInt32("IdUsuario") ?? 0;
+            if (idUsuario == 0)
+                return RedirectToAction("Login");
 
-            ViewBag.Username = username;
-            return View();
+            int idJuego;
+
+            using (var conexion = _conexion.GetConnection())
+            {
+                conexion.Open();
+
+                // Crear registro en juego
+                var cmd = new MySqlCommand(
+                    "INSERT INTO juego (fecha, id_usuario, puntaje_total) VALUES (@fecha, @idUsuario, 0); SELECT LAST_INSERT_ID();",
+                    conexion);
+                cmd.Parameters.AddWithValue("@fecha", DateTime.Now);
+                cmd.Parameters.AddWithValue("@idUsuario", idUsuario);
+
+                // Obtener el id del juego recién creado
+                idJuego = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+
+            // Guardar en sesión
+            HttpContext.Session.SetInt32("idJuego", idJuego);
+            HttpContext.Session.SetInt32("puntajeActual", 0);
+            HttpContext.Session.SetInt32("tiempoRestante", 60);
+            HttpContext.Session.SetInt32("RespuestasCorrectas", 0);
+            HttpContext.Session.SetInt32("RespuestasIncorrectas", 0);
+            HttpContext.Session.SetInt32("IndicePregunta", 0);
+
+            return RedirectToAction("Ronda");
         }
 
-        // Vista principal del módulo de juego
-        public IActionResult Index()
-        {
-            return View();
-        }
 
-        // Mostrar la ruleta de categorías
+
+
         public IActionResult Ruleta()
         {
             List<Categoria> categorias = new List<Categoria>();
-
-            using (var conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conexion = _conexion.GetConnection())
             {
-                conn.Open();
-                var cmd = new MySqlCommand("SELECT * FROM categoria", conn);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                conexion.Open();
+                MySqlCommand comando = new MySqlCommand("SELECT * FROM categoria", conexion);
+                MySqlDataReader lector = comando.ExecuteReader();
+                while (lector.Read())
                 {
-                    categorias.Add(new Categoria
-                    {
-                        id_categoria = reader.GetInt32("id_categoria"),
-                        nombre_categoria = reader.GetString("nombre_categoria")
-                    });
+                    Categoria cat = new Categoria();
+                    cat.id_categoria = lector.GetInt32("id_categoria");
+                    cat.nombre_categoria = lector.GetString("nombre_categoria");
+                    categorias.Add(cat);
                 }
+                lector.Close();
+                conexion.Close();
             }
 
             return View(categorias);
         }
 
-        // Inicia nueva partida (crea registro en la tabla juego)
-        public IActionResult NuevoJuego()
-        {
-            int idUsuario = Convert.ToInt32(HttpContext.Session.GetInt32("IdUsuario"));
-            int idJuego = 0;
-
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                var cmd = new MySqlCommand(
-                    "INSERT INTO juego (fecha, id_usuario, puntaje_total) VALUES (NOW(), @id_usuario, 0); SELECT LAST_INSERT_ID();", conn);
-                cmd.Parameters.AddWithValue("@id_usuario", idUsuario);
-                idJuego = Convert.ToInt32(cmd.ExecuteScalar());
-            }
-
-            HttpContext.Session.SetInt32("id_juego", idJuego);
-            HttpContext.Session.SetInt32("puntaje_actual", 0);
-            HttpContext.Session.SetInt32("rondas_completadas", 0);
-
-            return RedirectToAction("Ruleta");
-        }
-
-        // Inicia una ronda con 10 preguntas aleatorias de la categoría seleccionada
-        public IActionResult IniciarRonda(int idCategoria)
-        {
-            List<Pregunta> preguntas = new List<Pregunta>();
-
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                string sql = "SELECT * FROM pregunta WHERE id_categoria = @cat ORDER BY RAND() LIMIT 10";
-                var cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@cat", idCategoria);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    preguntas.Add(new Pregunta
-                    {
-                        id_pregunta = reader.GetInt32("id_pregunta"),
-                        texto_pregunta = reader.GetString("texto_pregunta"),
-                        id_categoria = reader.GetInt32("id_categoria")
-                    });
-                }
-            }
-
-            HttpContext.Session.SetString("Preguntas", System.Text.Json.JsonSerializer.Serialize(preguntas));
-            HttpContext.Session.SetInt32("IndiceActual", 0);
-
-            return RedirectToAction("Ronda");
-        }
-
-        // Muestra la pregunta actual
         public IActionResult Ronda()
         {
-            var preguntasJson = HttpContext.Session.GetString("Preguntas");
-            if (preguntasJson == null)
+            // Recuperar tiempo restante
+            int tiempoRestante = HttpContext.Session.GetInt32("tiempoRestante") ?? 60;
+
+            if (tiempoRestante <= 0)
+                return RedirectToAction("FinalizarJuego");
+
+            int idCategoria = HttpContext.Session.GetInt32("CategoriaSeleccionada") ?? 0;
+            if (idCategoria == 0)
                 return RedirectToAction("Ruleta");
 
-            var preguntas = System.Text.Json.JsonSerializer.Deserialize<List<Pregunta>>(preguntasJson);
-            int indice = HttpContext.Session.GetInt32("IndiceActual") ?? 0;
-
-            if (indice >= preguntas.Count)
-                return RedirectToAction("FinalizarRonda");
-
-            Pregunta preguntaActual = preguntas[indice];
-            List<Respuesta> respuestas = new List<Respuesta>();
-
-            using (var conn = new MySqlConnection(connectionString))
+            // Cargar preguntas de la categoría si no existen
+            List<Pregunta> preguntas = null;
+            string preguntasJson = HttpContext.Session.GetString("Preguntas");
+            if (!string.IsNullOrEmpty(preguntasJson))
+                preguntas = System.Text.Json.JsonSerializer.Deserialize<List<Pregunta>>(preguntasJson);
+            else
             {
-                conn.Open();
-                var cmd = new MySqlCommand("SELECT * FROM respuesta WHERE id_pregunta = @p", conn);
-                cmd.Parameters.AddWithValue("@p", preguntaActual.id_pregunta);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                preguntas = new List<Pregunta>();
+                using (var conexion = _conexion.GetConnection())
                 {
-                    respuestas.Add(new Respuesta
+                    conexion.Open();
+                    var comando = new MySqlCommand("SELECT * FROM pregunta WHERE id_categoria=@idCategoria ORDER BY RAND()", conexion);
+                    comando.Parameters.AddWithValue("@idCategoria", idCategoria);
+                    var lector = comando.ExecuteReader();
+                    while (lector.Read())
                     {
-                        id_respuesta = reader.GetInt32("id_respuesta"),
-                        texto_respuesta = reader.GetString("texto_respuesta"),
-                        es_correcta = reader.GetBoolean("es_correcta"),
-                        id_pregunta = reader.GetInt32("id_pregunta")
-                    });
+                        preguntas.Add(new Pregunta
+                        {
+                            id_pregunta = lector.GetInt32("id_pregunta"),
+                            texto_pregunta = lector.GetString("texto_pregunta"),
+                            id_categoria = lector.GetInt32("id_categoria")
+                        });
+                    }
+                    lector.Close();
                 }
+
+                HttpContext.Session.SetString("Preguntas", System.Text.Json.JsonSerializer.Serialize(preguntas));
+                HttpContext.Session.SetInt32("IndicePregunta", 0);
+
+                // Inicializar contadores solo al inicio de la ronda
+                HttpContext.Session.SetInt32("RespuestasCorrectas", 0);
+                HttpContext.Session.SetInt32("RespuestasIncorrectas", 0);
             }
 
+            int indice = HttpContext.Session.GetInt32("IndicePregunta") ?? 0;
+            if (indice >= preguntas.Count)
+                return RedirectToAction("FinalizarJuego");
+
+            Pregunta preguntaActual = preguntas[indice];
+
+            // Traer respuestas
+            List<Respuesta> listaRespuestas = new List<Respuesta>();
+            using (var conexion = _conexion.GetConnection())
+            {
+                conexion.Open();
+                var comando = new MySqlCommand("SELECT * FROM respuesta WHERE id_pregunta=@idPregunta", conexion);
+                comando.Parameters.AddWithValue("@idPregunta", preguntaActual.id_pregunta);
+                var lector = comando.ExecuteReader();
+                while (lector.Read())
+                {
+                    listaRespuestas.Add(new Respuesta
+                    {
+                        id_respuesta = lector.GetInt32("id_respuesta"),
+                        texto_respuesta = lector.GetString("texto_respuesta"),
+                        es_correcta = lector.GetBoolean("es_correcta"),
+                        id_pregunta = lector.GetInt32("id_pregunta")
+                    });
+                }
+                lector.Close();
+            }
+
+            // Barajar las respuestas aleatoriamente
+            Random rnd = new Random();
+            listaRespuestas = listaRespuestas.OrderBy(x => rnd.Next()).ToList();
+
+
+            // Contadores acumulativos
+            int correctas = HttpContext.Session.GetInt32("RespuestasCorrectas") ?? 0;
+            int incorrectas = HttpContext.Session.GetInt32("RespuestasIncorrectas") ?? 0;
+
             ViewBag.Pregunta = preguntaActual;
-            ViewBag.Respuestas = respuestas;
+            ViewBag.Respuestas = listaRespuestas;
+            ViewBag.Tiempo = tiempoRestante;
+            ViewBag.Correctas = correctas;
+            ViewBag.Incorrectas = incorrectas;
+
             return View();
         }
 
-        // Procesa la respuesta del jugador (ahora con tiempo y puntos dinámicos)
         [HttpPost]
-        public IActionResult Responder(int idPregunta, int idRespuesta, int tiempoRespuesta)
+        public IActionResult Responder(int idPregunta, int idRespuesta, int tiempoTomado)
         {
-            int idJuego = HttpContext.Session.GetInt32("id_juego") ?? 0;
-            int puntaje = HttpContext.Session.GetInt32("puntaje_actual") ?? 0;
-            bool esCorrecta = false;
-            int puntosGanados = 0;
+            int idJuego = HttpContext.Session.GetInt32("idJuego") ?? 0;
+            int puntajeActual = HttpContext.Session.GetInt32("puntajeActual") ?? 0;
+            int tiempoRestante = HttpContext.Session.GetInt32("tiempoRestante") ?? 60;
+            int correctas = HttpContext.Session.GetInt32("RespuestasCorrectas") ?? 0;
+            int incorrectas = HttpContext.Session.GetInt32("RespuestasIncorrectas") ?? 0;
 
-            using (var conn = new MySqlConnection(connectionString))
+            bool correcta = false;
+
+            using (var conexion = _conexion.GetConnection())
             {
-                conn.Open();
+                conexion.Open();
 
-                // Verificar si la respuesta fue correcta
-                var cmd = new MySqlCommand("SELECT es_correcta FROM respuesta WHERE id_respuesta = @r", conn);
-                cmd.Parameters.AddWithValue("@r", idRespuesta);
-                esCorrecta = Convert.ToBoolean(cmd.ExecuteScalar());
-
-                // Calcular puntos según el tiempo de respuesta
-                if (esCorrecta)
-                {
-                    if (tiempoRespuesta <= 5)
-                        puntosGanados = 3;
-                    else if (tiempoRespuesta <= 10)
-                        puntosGanados = 2;
-                    else if (tiempoRespuesta <= 30)
-                        puntosGanados = 1;
-                }
+                // Revisar si la respuesta es correcta
+                var comando = new MySqlCommand("SELECT es_correcta FROM respuesta WHERE id_respuesta=@idRespuesta", conexion);
+                comando.Parameters.AddWithValue("@idRespuesta", idRespuesta);
+                correcta = Convert.ToBoolean(comando.ExecuteScalar());
 
                 // Guardar detalle de la respuesta
-                var insert = new MySqlCommand(
-                    "INSERT INTO detalleJuego (id_juego, id_pregunta, id_respuesta, es_correcta) VALUES (@j, @p, @r, @c)", conn);
-                insert.Parameters.AddWithValue("@j", idJuego);
-                insert.Parameters.AddWithValue("@p", idPregunta);
-                insert.Parameters.AddWithValue("@r", idRespuesta);
-                insert.Parameters.AddWithValue("@c", esCorrecta);
-                insert.ExecuteNonQuery();
+                var insertarDetalle = new MySqlCommand(
+                    "INSERT INTO detalleJuego (id_juego, id_pregunta, id_respuesta, es_correcta) VALUES(@idJuego, @idPregunta, @idRespuesta, @correcta)",
+                    conexion);
+                insertarDetalle.Parameters.AddWithValue("@idJuego", idJuego);
+                insertarDetalle.Parameters.AddWithValue("@idPregunta", idPregunta);
+                insertarDetalle.Parameters.AddWithValue("@idRespuesta", idRespuesta);
+                insertarDetalle.Parameters.AddWithValue("@correcta", correcta);
+                insertarDetalle.ExecuteNonQuery();
 
-                // Actualizar puntaje total si aplica
-                if (puntosGanados > 0)
-                {
-                    puntaje += puntosGanados;
-                    var update = new MySqlCommand("UPDATE juego SET puntaje_total = puntaje_total + @pts WHERE id_juego = @j", conn);
-                    update.Parameters.AddWithValue("@pts", puntosGanados);
-                    update.Parameters.AddWithValue("@j", idJuego);
-                    update.ExecuteNonQuery();
-                }
+                // Actualizar puntaje total: cada correcta vale 1
+                if (correcta) puntajeActual = correctas + 10; // correctas aún no se incrementan
+                var actualizarJuego = new MySqlCommand("UPDATE juego SET puntaje_total=@puntaje WHERE id_juego=@idJuego", conexion);
+                actualizarJuego.Parameters.AddWithValue("@puntaje", puntajeActual);
+                actualizarJuego.Parameters.AddWithValue("@idJuego", idJuego);
+                actualizarJuego.ExecuteNonQuery();
             }
 
-            // Avanzar a la siguiente pregunta
-            var preguntas = System.Text.Json.JsonSerializer.Deserialize<List<Pregunta>>(HttpContext.Session.GetString("Preguntas"));
-            int indice = HttpContext.Session.GetInt32("IndiceActual") ?? 0;
+            // Ajustes de tiempo y contadores
+            if (correcta)
+            {
+                tiempoRestante += 5;
+                correctas++;
+            }
+            else
+            {
+                tiempoRestante -= 10;
+                incorrectas++;
+            }
+
+            if (tiempoRestante > 120) tiempoRestante = 120;
+            if (tiempoRestante < 0) tiempoRestante = 0;
+
+            // Guardar en sesión
+            HttpContext.Session.SetInt32("puntajeActual", correctas); // puntaje = respuestas correctas
+            HttpContext.Session.SetInt32("tiempoRestante", tiempoRestante);
+            HttpContext.Session.SetInt32("RespuestasCorrectas", correctas);
+            HttpContext.Session.SetInt32("RespuestasIncorrectas", incorrectas);
+
+            // Avanzar índice
+            int indice = HttpContext.Session.GetInt32("IndicePregunta") ?? 0;
             indice++;
+            HttpContext.Session.SetInt32("IndicePregunta", indice);
 
-            HttpContext.Session.SetInt32("IndiceActual", indice);
-            HttpContext.Session.SetInt32("puntaje_actual", puntaje);
-
-            if (indice >= preguntas.Count)
-                return RedirectToAction("FinalizarRonda");
+            // Revisar fin de juego
+            int totalPreguntas = System.Text.Json.JsonSerializer.Deserialize<List<Pregunta>>(HttpContext.Session.GetString("Preguntas"))?.Count ?? 0;
+            if (tiempoRestante <= 0 || indice >= totalPreguntas)
+                return RedirectToAction("FinalizarJuego");
 
             return RedirectToAction("Ronda");
         }
 
-        // Al terminar las 10 preguntas de una categoría
-        public IActionResult FinalizarRonda()
-        {
-            int rondas = HttpContext.Session.GetInt32("rondas_completadas") ?? 0;
-            rondas++;
-            HttpContext.Session.SetInt32("rondas_completadas", rondas);
 
-            if (rondas >= 5)
-                return RedirectToAction("FinalizarJuego");
+        public IActionResult FinalizarJuego()
+        {
+            int idJuego = HttpContext.Session.GetInt32("idJuego") ?? 0;
+
+            int correctas = 0;
+            int incorrectas = 0;
+            int puntajeTotal = 0;
+
+            using (var conexion = _conexion.GetConnection())
+            {
+                conexion.Open();
+
+                // Obtener estadísticas y puntaje total de la partida
+                var cmd = new MySqlCommand(
+                    @"SELECT 
+                SUM(CASE WHEN es_correcta=1 THEN 1 ELSE 0 END) as correctas,
+                SUM(CASE WHEN es_correcta=0 THEN 1 ELSE 0 END) as incorrectas,
+                puntaje_total
+              FROM juego j
+              LEFT JOIN detalleJuego d ON j.id_juego=d.id_juego
+              WHERE j.id_juego=@idJuego",
+                    conexion);
+                cmd.Parameters.AddWithValue("@idJuego", idJuego);
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    correctas = reader["correctas"] != DBNull.Value ? Convert.ToInt32(reader["correctas"]) : 0;
+                    incorrectas = reader["incorrectas"] != DBNull.Value ? Convert.ToInt32(reader["incorrectas"]) : 0;
+                    puntajeTotal = reader["puntaje_total"] != DBNull.Value ? Convert.ToInt32(reader["puntaje_total"]) : 0;
+                }
+            }
+
+            ViewBag.Correctas = correctas;
+            ViewBag.Incorrectas = incorrectas;
+            ViewBag.Puntaje = puntajeTotal;
 
             return View();
         }
 
-        // Muestra el resultado final del juego
-        public IActionResult FinalizarJuego()
+
+
+        public IActionResult SeleccionarCategoria(int idCategoria)
         {
-            int idJuego = HttpContext.Session.GetInt32("id_juego") ?? 0;
-            int puntajeFinal = 0;
+            HttpContext.Session.SetInt32("CategoriaSeleccionada", idCategoria);
 
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                var cmd = new MySqlCommand("SELECT puntaje_total FROM juego WHERE id_juego = @j", conn);
-                cmd.Parameters.AddWithValue("@j", idJuego);
-                puntajeFinal = Convert.ToInt32(cmd.ExecuteScalar());
-            }
+            // Reiniciar contadores al empezar una nueva ronda
+            HttpContext.Session.SetInt32("puntajeActual", 0);
+            HttpContext.Session.SetInt32("tiempoRestante", 60);
+            HttpContext.Session.SetInt32("RespuestasCorrectas", 0);
+            HttpContext.Session.SetInt32("RespuestasIncorrectas", 0);
 
-            ViewBag.Puntaje = puntajeFinal;
-            return View("ResultadoFinal");
+            HttpContext.Session.Remove("Preguntas");
+            HttpContext.Session.Remove("IndicePregunta");
+
+            return RedirectToAction("Ronda");
         }
 
-        // Ranking global
-        public IActionResult Ranking()
-        {
-            List<JuegoRanking> ranking = new List<JuegoRanking>();
 
-            using (var conn = new MySqlConnection(connectionString))
-            {
-                conn.Open();
-                var cmd = new MySqlCommand(@"SELECT u.username, j.puntaje_total, j.fecha
-                                            FROM juego j
-                                            JOIN usuario u ON j.id_usuario = u.id_usuario
-                                            ORDER BY j.puntaje_total DESC, j.fecha ASC", conn);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    ranking.Add(new JuegoRanking
-                    {
-                        Username = reader.GetString("username"),
-                        Puntaje = reader.GetInt32("puntaje_total"),
-                        Fecha = reader.GetDateTime("fecha")
-                    });
-                }
-            }
-
-            return View(ranking);
-        }
     }
 }

@@ -1,18 +1,23 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using MO.Data;
 using MO.Models;
+using System.Diagnostics;
+
+using MySql.Data.MySqlClient;
+
+
 
 namespace MO.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        
+        private readonly ConexionBD _conexion;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ConexionBD conexion)
         {
-            _logger = logger;
+            _conexion = conexion;
         }
-
         public IActionResult Index()
         {
             return View();
@@ -28,16 +33,53 @@ namespace MO.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
         public IActionResult MenuPrincipal()
         {
-            // Recuperar el nombre del usuario desde la sesión
-            var username = HttpContext.Session.GetString("Username");
+            ViewBag.Username = HttpContext.Session.GetString("Username");
 
-            if (string.IsNullOrEmpty(username))
-                return RedirectToAction("Login", "Usuario");
+            var top5 = ObtenerTop5Jugadores();
+            ViewBag.TopJugadores = top5;
 
-            ViewBag.Username = username;
             return View();
         }
+
+        private List<JugadorRanking> ObtenerTop5Jugadores()
+        {
+            var topJugadores = new List<JugadorRanking>();
+
+            using (var conn = _conexion.GetConnection())
+            {
+                conn.Open();
+
+                string query = @"
+            SELECT 
+                u.username AS Nombre,
+                COALESCE(SUM(CASE WHEN d.es_correcta=1 THEN 1 ELSE 0 END),0) AS RespuestasCorrectas,
+                COALESCE(SUM(j.puntaje_total),0) AS PuntajeTotal
+            FROM usuario u
+            LEFT JOIN juego j ON u.id_usuario = j.id_usuario
+            LEFT JOIN detalleJuego d ON j.id_juego = d.id_juego
+            GROUP BY u.id_usuario, u.username
+            ORDER BY PuntajeTotal DESC
+            LIMIT 5;
+        ";
+
+                using var cmd = new MySqlCommand(query, conn);
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    topJugadores.Add(new JugadorRanking
+                    {
+                        Nombre = reader.GetString("Nombre"),
+                        RespuestasCorrectas = reader.GetInt32("RespuestasCorrectas"),
+                        PuntajeTotal = reader.GetInt32("PuntajeTotal")
+                    });
+                }
+            }
+
+            return topJugadores;
+        }
+
     }
 }

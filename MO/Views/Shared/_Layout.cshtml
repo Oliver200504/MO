@@ -1,49 +1,165 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MO</title>
+    <title>@ViewData["Title"] - MO Trivia</title>
+
+    <!-- Bootstrap opcional solo para grid -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MO.styles.css" asp-append-version="true" />
+
+    <!-- Estilos personalizados -->
+    <style>
+        /* Body con gradiente tipo gaming */
+        body.trivia {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        header nav {
+            background-color: rgba(0,0,0,0.5);
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            header nav a.navbar-brand {
+                font-size: 1.8rem;
+                font-weight: bold;
+                color: #fff;
+                text-decoration: none;
+            }
+
+            header nav a.nav-link {
+                color: #fff;
+                margin-left: 1rem;
+                font-weight: 600;
+                transition: 0.3s;
+            }
+
+                header nav a.nav-link:hover {
+                    color: #ffd700;
+                    text-shadow: 0 0 5px #fff;
+                }
+
+        main {
+            padding: 2rem;
+        }
+
+        footer.footer {
+            padding: 1rem 0;
+            background-color: rgba(0,0,0,0.4);
+            color: #fff;
+        }
+
+        /* Botones grandes */
+        .btn-trivia {
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            margin: 0.5rem;
+            background: linear-gradient(90deg, #ff6a00, #ee0979);
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+            box-shadow: 0 0 10px #ff6a00;
+        }
+
+            .btn-trivia:hover {
+                background: linear-gradient(90deg, #ee0979, #ff6a00);
+                box-shadow: 0 0 15px #ffd700;
+            }
+
+        /* Top 5 jugadores */
+        table.table-top5 {
+            width: 100%;
+            max-width: 700px;
+            margin: 2rem auto;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+            table.table-top5 th {
+                background: #4a00e0;
+                color: #fff;
+                font-size: 1.1rem;
+                padding: 0.8rem;
+                border-radius: 8px 8px 0 0;
+            }
+
+            table.table-top5 td {
+                background: rgba(255,255,255,0.1);
+                padding: 0.7rem;
+                text-align: center;
+                font-size: 1rem;
+                border-radius: 0 0 8px 8px;
+            }
+
+            table.table-top5 tr:nth-child(1) td {
+                background: linear-gradient(90deg, #ffd700, #ffdd00);
+                color: #000;
+                font-weight: bold;
+            }
+
+            table.table-top5 tr:nth-child(2) td {
+                background: linear-gradient(90deg, #c0c0c0, #d9d9d9);
+                color: #000;
+                font-weight: bold;
+            }
+
+            table.table-top5 tr:nth-child(3) td {
+                background: linear-gradient(90deg, #cd7f32, #d18c3c);
+                color: #000;
+                font-weight: bold;
+            }
+
+        <style >
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .btn-trivia
+
+        {
+            width: 90%;
+        }
+
+        table.table-top5 {
+            width: 95%;
+        }
+
+        }
+    </style>
+
+    </style>
 </head>
-<body>
+<body class="trivia">
+
+    <!-- Header / Navbar -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MO</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <nav>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MO Trivia</a>
+           
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - MO - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+    <!-- Main Content -->
+    <main role="main" class="container text-center">
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer text-center">
+        &copy; 2025 - MO Trivia
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

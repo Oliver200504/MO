@@ -1,13 +1,157 @@
-﻿@{
-    ViewData["Title"] = "Menú Principal";
-}
+﻿
 
-<h2>Bienvenido, @ViewBag.Username 👋</h2>
-<p>Selecciona una opción:</p>
+<div class="trivia">
+    <h2>🎉 Bienvenido a la Trivia, @ViewBag.Username!</h2>
+    <p>Elige una opción y comienza a jugar 🕹️</p>
 
-<ul>
-    <li><a href="/Juego/Iniciar">🎮 Iniciar Partida</a></li>
-    <li><a href="/Ranking/Index">🏆 Ranking</a></li>
-    <li><a href="/Usuario/Perfil">👤 Mi Perfil</a></li>
-    <li><a href="@Url.Action("Logout", "Usuario")">🚪 Cerrar Sesión</a></li>
-</ul>
+    <ul>
+        <li><a href="/Juego/Iniciar">🎮 Iniciar Partida</a></li>
+      
+        <li><a href="/Usuario/Perfil">👤 Mi Perfil</a></li>
+        <li><a href="@Url.Action("Logout", "Usuario")">🚪 Cerrar Sesión</a></li>
+    </ul>
+
+    <h3>Top 5 Jugadores</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Posición</th>
+                <th>Jugador</th>
+                <th>Respuestas Correctas</th>
+                <th>Puntaje Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.TopJugadores != null && ViewBag.TopJugadores.Count > 0)
+            {
+                int i = 1;
+                foreach (var jugador in ViewBag.TopJugadores)
+                {
+                    string medalla = "";
+                    string claseMedalla = "";
+
+                    switch (i)
+                    {
+                        case 1:
+                            medalla = "🥇";
+                            claseMedalla = "medalla-oro";
+                            break;
+                        case 2:
+                            medalla = "🥈";
+                            claseMedalla = "medalla-plata";
+                            break;
+                        case 3:
+                            medalla = "🥉";
+                            claseMedalla = "medalla-bronce";
+                            break;
+                    }
+
+                    <tr>
+                        <td class="@claseMedalla">@i @medalla</td>
+                        <td>@jugador.Nombre</td>
+                        <td>@jugador.RespuestasCorrectas</td>
+                        <td>@jugador.PuntajeTotal</td>
+                    </tr>
+                    i++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">No hay datos disponibles</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    body.trivia {
+        background: linear-gradient(135deg, #4b0082, #8a2be2);
+        color: #f0f0f0;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .trivia h2, .trivia h3 {
+        text-align: center;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .trivia ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
+
+        .trivia ul li a {
+            display: inline-block;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: #ffffff;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+            .trivia ul li a:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+                background: linear-gradient(45deg, #00ffcc, #6a11cb);
+            }
+
+    .trivia table {
+        width: 90%;
+        max-width: 800px;
+        margin: 0 auto 50px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        background: #1a1a2e;
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .trivia thead {
+        background: linear-gradient(to right, #8a2be2, #00ffcc);
+        text-align: center;
+        font-size: 1.05rem;
+    }
+
+    .trivia tbody tr {
+        transition: all 0.2s ease;
+    }
+
+        .trivia tbody tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+    .trivia td, .trivia th {
+        padding: 12px;
+        text-align: center;
+    }
+
+    .trivia .medalla-oro {
+        color: #FFD700;
+        font-size: 1.3rem;
+    }
+
+    .trivia .medalla-plata {
+        color: #C0C0C0;
+        font-size: 1.3rem;
+    }
+
+    .trivia .medalla-bronce {
+        color: #cd7f32;
+        font-size: 1.3rem;
+    }
+</style>

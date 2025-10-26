@@ -6,5 +6,22 @@
 <p><strong>Usuario:</strong> @Model.Username</p>
 <p><strong>Correo:</strong> @Model.Correo</p>
 
+@if (ViewBag.UltimaPartida != null)
+{
+    var partida = ViewBag.UltimaPartida;
+
+    <h3>Última Partida</h3>
+    <p><strong>Fecha:</strong> @partida.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
+    <p><strong>Puntaje Total:</strong> @partida.PuntajeTotal</p>
+    <p><strong>Respuestas Correctas:</strong> @partida.Correctas</p>
+    <p><strong>Respuestas Incorrectas:</strong> @partida.Incorrectas</p>
+}
+else
+{
+    <p>No hay partidas registradas.</p>
+}
+
 <a class="btn btn-primary" href="/Usuario/Editar?id=@Model.Id_Usuario">Editar Perfil</a>
 <a class="btn btn-secondary" href="/Home/MenuPrincipal">Volver al Menú</a>
+
+

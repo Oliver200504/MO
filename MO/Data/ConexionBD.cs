@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace MO.Data
 {
@@ -9,12 +10,16 @@ namespace MO.Data
 
         public ConexionBD(IConfiguration configuration)
         {
+            // Obtener cadena de conexión desde appsettings.json
             _connectionString = configuration.GetConnectionString("DefaultConnection");
+
         }
 
         public MySqlConnection GetConnection()
         {
             return new MySqlConnection(_connectionString);
         }
+
+       
     }
 }

@@ -1,0 +1,65 @@
+﻿@{
+    
+}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ronda Finalizada - MO Trivia</title>
+    <style>
+        body.finalizado {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(0,0,0,0.6);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 0 15px #000;
+        }
+
+        .resultado {
+            font-size: 1.3rem;
+            margin: 0.8rem 0;
+        }
+
+        .btn-jugar {
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            margin: 0.5rem;
+            background: linear-gradient(90deg, #ff6a00, #ee0979);
+            color: #fff;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+            .btn-jugar:hover {
+                background: linear-gradient(90deg, #ee0979, #ff6a00);
+                box-shadow: 0 0 15px #ffd700;
+                color: #fff;
+            }
+    </style>
+</head>
+<body class="finalizado">
+    <div class="container">
+        <h2>¡Ronda finalizada!</h2>
+
+        <div class="resultado">Respuestas correctas: <strong>@ViewBag.Correctas</strong></div>
+        <div class="resultado">Respuestas incorrectas: <strong>@ViewBag.Incorrectas</strong></div>
+        <div class="resultado">Puntaje total: <strong>@ViewBag.Puntaje</strong></div>
+
+        <a href="/Juego/Ruleta" class="btn-jugar">🎮 Volver a jugar</a>
+        <a href="/Home/MenuPrincipal" class="btn-jugar">🏠 Menú principal</a>
+    </div>
+</body>
+</html>
