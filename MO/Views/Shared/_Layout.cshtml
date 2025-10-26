@@ -46,6 +46,24 @@
                     text-shadow: 0 0 5px #fff;
                 }
 
+        /* 🔹 Botón de cierre de sesión */
+        .logout-link {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            background: linear-gradient(90deg, #ff6a00, #ee0979);
+            padding: 8px 16px;
+            border-radius: 10px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px #ff6a00;
+        }
+
+            .logout-link:hover {
+                background: linear-gradient(90deg, #ee0979, #ff6a00);
+                box-shadow: 0 0 15px #ffd700;
+                color: #fff;
+            }
+
         main {
             padding: 2rem;
         }
@@ -118,31 +136,17 @@
                 font-weight: bold;
             }
 
-        <style >
-        /* Responsive */
-        @@media (max-width: 768px) {
-            .btn-trivia
-
-        {
-            width: 90%;
-        }
-
-        table.table-top5 {
-            width: 95%;
-        }
-
-        }
-    </style>
-
     </style>
 </head>
-<body class="trivia">
 
+<body class="trivia">
     <!-- Header / Navbar -->
     <header>
         <nav>
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MO Trivia</a>
-           
+
+            <!-- 🔹 Esta sección solo se mostrará en las vistas que la definan -->
+            @RenderSection("NavExtras", required: false)
         </nav>
     </header>
 
@@ -151,12 +155,9 @@
         @RenderBody()
     </main>
 
-  
-
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

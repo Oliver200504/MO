@@ -1,4 +1,7 @@
-﻿
+﻿@section NavExtras {
+    <a href="@Url.Action("Logout", "Usuario")" class="logout-link">🚪 Cerrar Sesión</a>
+}
+
 
 <div class="trivia">
     <h2>🎉 Bienvenido a la Trivia, @ViewBag.Username!</h2>
@@ -8,7 +11,6 @@
         <li><a href="/Juego/Iniciar">🎮 Iniciar Partida</a></li>
       
         <li><a href="/Usuario/Perfil">👤 Mi Perfil</a></li>
-        <li><a href="@Url.Action("Logout", "Usuario")">🚪 Cerrar Sesión</a></li>
     </ul>
 
     <h3>Top 5 Jugadores</h3>
