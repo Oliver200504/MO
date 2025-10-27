@@ -46,7 +46,7 @@ namespace MO.Controllers
 
         private List<JugadorRanking> ObtenerTop5Jugadores()
         {
-            var topJugadores = new List<JugadorRanking>();
+            var topJugadores = new List<JugadorRanking>();  // lista donde guardo top 5
 
             using (var conn = _conexion.GetConnection())
             {
@@ -62,11 +62,12 @@ namespace MO.Controllers
             LEFT JOIN detalleJuego d ON j.id_juego = d.id_juego
             GROUP BY u.id_usuario, u.username
             ORDER BY PuntajeTotal DESC
-            LIMIT 5;
-        ";
-
+            LIMIT 5;";
+                // une usuario con sus juegos y luego con los detalles; con LEFT JOIN
+                
                 using var cmd = new MySqlCommand(query, conn);
                 using var reader = cmd.ExecuteReader();
+                // recorrer resultados y llenar la lista
                 while (reader.Read())
                 {
                     topJugadores.Add(new JugadorRanking

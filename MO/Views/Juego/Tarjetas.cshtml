@@ -2,39 +2,43 @@
 @{
     ViewData["Title"] = "Selecciona una categoría";
 }
-
 <h2 class="page-title">Selecciona una tarjeta</h2>
 
 <div class="card-container-categorias">
     @for (int i = 0; i < Model.Count; i++)
     {
+        <!-- tarjeta individual con frente y reverso -->
         <div class="card-categoria" data-id="@Model[i].id_categoria" data-name="@Model[i].nombre_categoria">
             <div class="card-inner-categoria">
-                <div class="card-front-categoria">Tarjeta @(@i + 1)</div>
-                <div class="card-back-categoria">@Model[i].nombre_categoria</div>
+                <div class="card-front-categoria">Tarjeta @(@i + 1)</div> <!-- lado visible inicialmente -->
+                <div class="card-back-categoria">@Model[i].nombre_categoria</div> <!-- lado oculto con nombre de categoría -->
             </div>
         </div>
     }
 </div>
 
 <script>
+    // seleccionar todas las tarjetas
     const cards = document.querySelectorAll('.card-categoria');
 
+    // recorrer cada tarjeta y agregar evento click
     cards.forEach(card => {
         card.addEventListener('click', () => {
-            if(card.classList.contains('flipped')) return;
+            if(card.classList.contains('flipped')) return; // si ya está volteada, no hacer nada
 
-            card.classList.add('flipped');
+            card.classList.add('flipped'); // voltear tarjeta
 
             setTimeout(() => {
-                const id = card.getAttribute('data-id');
-                window.location.href = `/Juego/SeleccionarCategoria?idCategoria=${id}`;
-            }, 1500);
+                const id = card.getAttribute('data-id'); // obtener id de categoría
+                window.location.href = `/Juego/SeleccionarCategoria?idCategoria=${id}`; // redirigir al juego
+            }, 1500); 
 
+            // desactivar clic en las demás tarjetas mientras se procesa
             cards.forEach(c => { if(c !== card) c.style.pointerEvents = 'none'; });
         });
     });
 </script>
+
 
 
 <style>

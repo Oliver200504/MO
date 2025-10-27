@@ -1,6 +1,13 @@
 ﻿@{
-
+    ViewData["Title"] = "Pregunta";
 }
+
+
+<div class="botones-superiores">
+    <button id="btnOmitir" type="button">Omitir</button>
+    <button id="btnSalir" type="button">Salir</button>
+</div>
+
 <div class="pregunta-container">
     <h3 class="pregunta-titulo">@ViewBag.Pregunta.texto_pregunta</h3>
     <div id="timer">@ViewBag.Tiempo segundos restantes</div>
@@ -25,17 +32,20 @@
         }
     </form>
 </div>
-
 <script>
-    let tiempoRestante = @ViewBag.Tiempo;
+   
+    let tiempoRestante = @ViewBag.Tiempo; 
     let tiempoInicio = new Date().getTime();
-    let correctas = @ViewBag.Correctas;
-    let incorrectas = @ViewBag.Incorrectas;
+    let correctas = @ViewBag.Correctas; // contador de  correctas
+    let incorrectas = @ViewBag.Incorrectas; // contador de r incorrectas
 
+    // actualizar el timer cada segundo
     function actualizarTimer() {
         document.getElementById("timer").innerText = tiempoRestante + " segundos restantes";
         tiempoRestante--;
         if (tiempoRestante < 0) {
+            // si se acaba el tiempo, marcar como no respondida y enviar formulario
+            document.getElementById("idRespuesta").value = 0; // no respondió
             document.getElementById("tiempoTomado").value = 61;
             document.getElementById("formPregunta").submit();
         } else {
@@ -43,46 +53,99 @@
         }
     }
 
+  
     function seleccionarRespuesta(div, idResp) {
         const opciones = document.getElementsByClassName("opcion");
-        for (let i = 0; i < opciones.length; i++) opciones[i].onclick = null;
+        for (let i = 0; i < opciones.length; i++) opciones[i].onclick = null; // desactivar clicks
 
         const esCorrecta = div.getAttribute("data-correcta") === "true";
-        div.classList.add(esCorrecta ? "correcta" : "incorrecta");
+        div.classList.add(esCorrecta ? "correcta" : "incorrecta"); // colorear según correcta o incorrecta
 
+        // actualizar contadores
         if (esCorrecta) correctas++; else incorrectas++;
         document.getElementById("correctas").innerText = correctas;
         document.getElementById("incorrectas").innerText = incorrectas;
 
-        document.getElementById("idRespuesta").value = idResp;
+        document.getElementById("idRespuesta").value = idResp; // guardar id respuesta
         let tiempoActual = new Date().getTime();
-        document.getElementById("tiempoTomado").value = Math.floor((tiempoActual - tiempoInicio)/1000);
+        document.getElementById("tiempoTomado").value = Math.floor((tiempoActual - tiempoInicio)/1000); // calcular tiempo tomado
 
+        // enviar dsp medio segundo
         setTimeout(function() { document.getElementById("formPregunta").submit(); }, 500);
     }
 
+    // botón omitir
+    document.getElementById("btnOmitir").onclick = function() {
+        document.getElementById("idRespuesta").value = 0; // marcar como no respondida
+        let tiempoActual = new Date().getTime();
+        document.getElementById("tiempoTomado").value = Math.floor((tiempoActual - tiempoInicio)/1000);
+        document.getElementById("formPregunta").submit();
+    };
+
+    // botón salir de la partida
+    document.getElementById("btnSalir").onclick = function() {
+        window.location.href = "/Home/MenuPrincipal"; // ir al menú principal
+    };
+
+    // iniciar timer al cargar la página
     window.onload = actualizarTimer;
 </script>
 
 
-
-
-
-
-
 <style>
+   
+    .botones-superiores {
+        max-width: 1000px;
+        width: 85%;
+        margin: 10px auto 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    #btnOmitir, #btnSalir {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+    }
+
+    #btnOmitir {
+        background-color: #ff9800;
+    }
+
+        #btnOmitir:hover {
+            background-color: #e68900;
+            transform: scale(1.05);
+        }
+
+    #btnSalir {
+        background-color: #f44336;
+    }
+
+        #btnSalir:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+
+   
     .pregunta-container {
         background: linear-gradient(135deg, #1a1a2e, #101540);
         border-radius: 20px;
         padding: 20px 25px;
-        max-width: 1000px; /* contenedor más ancho */
+        max-width: 1000px;
         width: 85%;
-        margin: 20px auto;
+        margin: 10px auto 20px auto;
         box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         display: flex;
         flex-direction: column;
         align-items: center;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        word-wrap: break-word; 
     }
 
         .pregunta-container:hover {
@@ -90,6 +153,7 @@
             box-shadow: 0 12px 25px rgba(0,0,0,0.5);
         }
 
+   
     .pregunta-titulo {
         color: #fff;
         font-size: 1.5rem;
@@ -108,7 +172,7 @@
     .contador {
         margin-bottom: 10px;
         font-size: 15px;
-        white-space: nowrap; 
+        white-space: nowrap;
     }
 
         .contador span {
@@ -123,21 +187,20 @@
         border-radius: 12px;
         padding: 12px 25px;
         margin: 8px 0;
-        width: 95%;
-        max-width: 950px; /* opciones largas */
+        width: 100%; 
+        max-width: 950px; 
         border: 2px solid #6a11cb;
         cursor: pointer;
         font-weight: bold;
         font-size: 1rem;
         transition: all 0.2s ease;
         text-align: center;
-        white-space: nowrap; /* evita saltos de línea */
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal; 
+        word-wrap: break-word; 
         box-sizing: border-box;
     }
 
-       
+
 
     .correcta {
         background-color: #4caf50 !important;
@@ -153,7 +216,7 @@
         display: none;
     }
 
-    /* Responsivo */
+    
     @@media (max-width: 1024px) {
         .pregunta-container
 
@@ -190,9 +253,8 @@
     }
 
     .contador {
-        white-space: normal; 
+        white-space: normal;
     }
 
     }
 </style>
-
