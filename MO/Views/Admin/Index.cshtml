@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "Panel del Administrador";
+}
+
+<style>
+    
+    .admin-dark-text,
+    .admin-dark-text * {
+        color: #000 !important;
+    }
+</style>
+
+<div class="admin-dark-text">
+
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-speedometer2"></i> Panel del Administrador</h2>
+
+        <a class="btn btn-outline-danger" href="/Usuario/Logout">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </a>
+    </div>
+
+    <!-- Alert de éxito -->
+    @if (TempData["OK"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["OK"]
+        </div>
+    }
+
+    <!-- Grid de opciones -->
+    <div class="row g-4">
+
+        <!-- Card Crear Pregunta -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-pencil-square fs-1 text-primary"></i>
+                    <h4 class="mt-3 fw-bold">Crear Pregunta</h4>
+                    <p>Agrega nuevas preguntas con sus respuestas y su categoría.</p>
+
+                    <a href="/Admin/CrearPregunta" class="btn btn-primary w-100 mt-2">
+                        <i class="bi bi-plus-circle"></i> Crear Pregunta
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Ver Preguntas -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-card-checklist fs-1 text-secondary"></i>
+                    <h4 class="mt-3 fw-bold">Ver Preguntas</h4>
+                    <p>Consulta, edita o elimina preguntas existentes en el sistema.</p>
+
+                    <a href="/Admin/Preguntas" class="btn btn-secondary w-100 mt-2">
+                        <i class="bi bi-eye"></i> Ver Preguntas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-5 small" style="color:black !important;">
+        Sistema de Administración MO © @DateTime.Now.Year
+    </div>
+
+</div>

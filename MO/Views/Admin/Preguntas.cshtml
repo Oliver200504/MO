@@ -1,0 +1,41 @@
+﻿@model List<MO.Models.Pregunta>
+<a href="/Admin" class="btn btn-secondary">⬅ Regresar</a>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-octagon"></i> @TempData["Error"]
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Pregunta</th>
+            <th>Categoría</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.id_pregunta</td>
+                <td>@item.texto_pregunta</td>
+                <td>@item.id_categoria</td>
+                <td>
+                    <a class="btn btn-warning btn-sm" href="/Admin/EditarPregunta/@item.id_pregunta">Editar</a>
+
+                    <form method="post" asp-action="EliminarPregunta" style="display:inline-block;">
+                        <input type="hidden" name="id" value="@item.id_pregunta" />
+                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Admin" class="btn btn-secondary mt-3">⬅ Regresar</a>

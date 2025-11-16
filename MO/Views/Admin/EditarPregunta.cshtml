@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "Editar Pregunta";
+
+    var pregunta = ViewBag.Pregunta as MO.Models.Pregunta;
+    var respuestas = ViewBag.Respuestas as List<string>;
+    var correcta = ViewBag.Correcta;
+    var categorias = ViewBag.Categorias as List<(int Id, string Nombre)>;
+}
+
+<h2 class="mb-3">Editar Pregunta</h2>
+
+<a href="/Admin/Preguntas" class="btn btn-secondary mb-3">⬅ Regresar</a>
+
+<form method="post" asp-action="EditarPregunta">
+    <input type="hidden" name="id_pregunta" value="@pregunta.id_pregunta" />
+
+    <!-- Pregunta -->
+    <div class="form-group mb-3">
+        <label><strong>Texto de la pregunta</strong></label>
+        <input type="text" class="form-control" name="textoPregunta" value="@pregunta.texto_pregunta" required />
+    </div>
+
+    <!-- Categoría -->
+    <div class="form-group mb-3">
+        <label><strong>Categoría</strong></label>
+        <select name="id_categoria" class="form-control" required>
+            @foreach (var cat in categorias)
+            {
+                <option value="@cat.Id" selected="@(pregunta.id_categoria == cat.Id)">
+                    @cat.Nombre
+                </option>
+            }
+        </select>
+    </div>
+
+    <!-- Respuestas -->
+    <h4 class="mt-4">Respuestas</h4>
+
+    @for (int i = 0; i < respuestas.Count; i++)
+    {
+        <div class="form-group mb-2">
+            <label>Respuesta @(i + 1)</label>
+            <input type="text" name="respuestas" class="form-control" value="@respuestas[i]" required />
+        </div>
+    }
+
+    <!-- Selección de respuesta correcta -->
+    <div class="form-group mt-3">
+        <label><strong>Respuesta correcta</strong></label>
+        <select class="form-control" name="correcta">
+            @for (int i = 0; i < respuestas.Count; i++)
+            {
+                <option value="@i" selected="@(correcta == i)">
+                    Respuesta @(i + 1)
+                </option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-success mt-4">Guardar Cambios</button>
+</form>

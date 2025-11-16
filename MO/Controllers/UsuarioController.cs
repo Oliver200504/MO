@@ -25,6 +25,16 @@ namespace ProyectoMO2.Controllers
         [HttpPost]
         public IActionResult Login(string username, string contrasena)
         {
+            
+            if (username == "admin@MOO.com" && contrasena == "admin123")
+            {
+                HttpContext.Session.SetString("Rol", "Admin");
+                HttpContext.Session.SetString("Username", "Administrador");
+
+                return RedirectToAction("Index", "Admin");
+            }
+
+            
             using var conn = _conexion.GetConnection();
             conn.Open();
 
@@ -36,9 +46,9 @@ namespace ProyectoMO2.Controllers
             using var reader = cmd.ExecuteReader();
             if (reader.Read())
             {
-                // Guardar en sesión
                 HttpContext.Session.SetInt32("IdUsuario", reader.GetInt32("id_usuario"));
                 HttpContext.Session.SetString("Username", reader.GetString("username"));
+                HttpContext.Session.SetString("Rol", "Usuario");
 
                 return RedirectToAction("MenuPrincipal", "Home");
             }
@@ -46,6 +56,7 @@ namespace ProyectoMO2.Controllers
             ViewBag.Error = "Usuario o contraseña incorrectos.";
             return View();
         }
+
 
         public IActionResult Perfil()
         {
@@ -75,7 +86,7 @@ namespace ProyectoMO2.Controllers
                     reader.Close();
                 }
 
-                // Traer la última partida con correctas e incorrectas
+                
                 string queryUltima = @"
             SELECT 
                 j.id_juego, 
